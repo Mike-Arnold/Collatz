@@ -1,5 +1,3 @@
-#C:\Users\Mike\AppData\Local\Programs\Python\Python37-32\python.exe C:\Users\Mike\Desktop\python\collatz.py
-
 #The Collatz Conjecture or 3x+1 problem concerns a process of taking a starting number, x, and either
 #multiplying it by 3 and adding one (if x is odd), 
 #or dividing it by 2 (if x is even).
