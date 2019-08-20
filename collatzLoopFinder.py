@@ -1,3 +1,5 @@
+#C:\Users\Mike\AppData\Local\Programs\Python\Python37-32\python.exe C:\Users\Mike\Desktop\python\collatzLoopFinder.py
+
 #The Collatz Conjecture or 3x+1 problem concerns a process of taking a starting number, x, and either
 #multiplying it by 3 and adding one (if x is odd), 
 #or dividing it by 2 (if x is even).
@@ -32,95 +34,104 @@
 #Then we either flip to the negative case of c, or flip back to the positive case and add two.
 	#c must be odd.
 
-cMin=1
-cMax=10
-indexOfC = 0
-loopCounter=0
-loops = [[c]]
+	
+#c here refers to the one in ax + c
+cMin=1  #the starting value, so it should be odd
+cMax=2	#should at least cMin+1
 
-c = cMin
-while c < cMax:
-	n=0
-	#print(c)
+loops = [] 
+indexOfC = 0  #as we check each c, we'll place each new loop in loops[indexOfC] 
+loopCounter = 0  #this will be equivalent to len(loops[indexOfC])-1, but for readability we'll always just add +1 manually
+
+currentC = cMin
+loops.append([currentC])  #label the first row of loops
+
+while currentC < cMax:
+	trajectorySeed = 0
+	#print(currentC)
 	
-	while n < 2000:
+	while trajectorySeed < 2000:  #loops tend to contain small values, so checking up to a relatively large number should capture all of them
 	
-		x=n
-		trajectory=[x] #the complete history of where x gets sent by this process
-		loopFound=0
+		trajectoryPoint = trajectorySeed  #trajectoryPoint is the x in 3x+1
+		trajectory = [trajectoryPoint] #the complete history of where trajectoryPoint gets sent by this process
+		loopFound = 0
 		
 		while loopFound == 0:
 			
-			#iterate on x
-			if x%2 == 0:  				#if x is even
-				x = int(((1*x) + 0) / 2)
+			#iterate on trajectoryPoint
+			if trajectoryPoint%2 == 0:  		#if is even
+				trajectoryPoint = int(((1*trajectoryPoint) + 0) / 2)		#can change the zero on this line to be any even number
+																
+			elif trajectoryPoint%2 == 1:				#if x is odd
+				trajectoryPoint = int(((3*trajectoryPoint) + currentC) / 2)
 				
-			elif x%2 == 1:				#if x is odd
-				x = int(((3*x) + c) / 2)
-				
-			#append the new x to x's history
-			trajectory.append(x)
+			#append the new trajectoryPoint to trajectoryPoint's history
+			trajectory.append(trajectoryPoint)
 			
-			y=0 #we'll use traj[y] to check if the newest x has occured before
-			z=len(trajectory)-1 #we check up to the length of x's trajectory
-								#we exclude traj[-1] because that's x itself
+			possibleMatchIndex = 0 #we'll use trajectory[possibleMatchIndex] to check if the newest trajectoryPoint has occured before
 			
-			while y < z:
-			
-				#if we match an earlier number in the trajectory, we may have a new loop
-				if trajectory[y] == x:
+			while possibleMatchIndex < len(trajectory)-1:
+										#we check up to the length of trajectoryPoint's history, minus one to ignore its current point
+										
+				#if trajectoryPoint matches an earlier point trajectory[possibleMatchIndex], we may have a new loop
+				if trajectory[possibleMatchIndex] == trajectoryPoint:
 					#this will let us exit this starting number n
 					loopFound = 1
 					
-					#first, cycle traj[y:z] so its lowest element is first
-					w=1
-					traj = trajectory[y:z]
-					least = traj[0]
-					leastIndex = 0
+					#first, cycle tempTraj so its lowest point is first
 					
-					while w < len(traj):
-						if abs(traj[w]) < abs(least):
-							least = traj[w]
-							leastIndex = w
-						w += 1
+						#some new variables for this purpose
+					tempTraj = trajectory[possibleMatchIndex:len(trajectory)-1]  #take a clip of trajectory at the two points that matched
+					tempTrajIterator=1   #the value at this index will be compared to the current lowest to see which is lower
+					lowestPointIndex = 0 #bookmarks the current champion, will be used to cut the tempTraj in half
 					
-					loop = traj[leastIndex:]+traj[:leastIndex]
+						#find the index of the lowest point in the trajectory
+					while tempTrajIterator < len(tempTraj):										#go through the whole clip tempTraj,
 					
-					#then, check if it already appears
-					v=0
+						if abs(tempTraj[tempTrajIterator]) < abs(tempTraj[lowestPointIndex]):	#check if any element is lower than the current champ,
+							lowestPointIndex = tempTrajIterator									#if it is, make it the new champ.
+							
+						tempTrajIterator += 1
 					
-					while v <= loopCounter:
+					loop = tempTraj[lowestPointIndex:]+tempTraj[:lowestPointIndex]	#cut tempTraj in half at the lowest point and put the rear part in front
 					
-						if v == loopCounter:
-							#we have a new loop
+						#then, check if it already appears
+					loopChecker = 0
+					
+					while loopChecker <= loopCounter:
+					
+						if loopChecker == loopCounter:
+							#we've checked everything up to the number of loops, no match, so it's new
 							print(str(len(loop))+" "+str(loop))
 							loops[indexOfC].append(loop)
-							loopCounter +=1
-							v = loopCounter+1
+							loopCounter += 1
+							break
 						
-						elif loop == loops[indexOfC][v+1]:
-							#old loop, move v to end
-							v = loopCounter+1
+						elif loop == loops[indexOfC][loopChecker+1]:  #we add the one because the first element is "c"
+							#old loop, break
+							break
 						
-						v += 1
+						loopChecker += 1
 					
 					#because we matched an earlier value, we're done looking
-					y=z
+					break
 					
 				else:
-					y += 1
+					possibleMatchIndex += 1
 					
-		if n == 0:
-			n = 1
-		elif n > 0:
-			n = -n
+		
+		#the following 3 if statements shuffle the seed to its next starting point
+		if trajectorySeed == 0:
+			trajectorySeed = 1
+		elif trajectorySeed > 0:
+			trajectorySeed = -trajectorySeed
 		else:
-			n = -n + 2 #add 2 because we only need to check odd starting values, other than zero
+			trajectorySeed = -trajectorySeed + 2 #add 2 because we only need to check odd starting values, other than zero
 	
 	#print(loops[indexOfC])
-	print(str(loopCounter) + " loops for " + str(c))
+	print(str(loopCounter) + " loops for " + str(currentC))
 	print("")
-	c += 2
+	currentC += 2
 	indexOfC += 1
-	loops.append([c])
+	loops.append([currentC])  #attach a label of 'C' to a new row of loops
 	loopCounter = 0
